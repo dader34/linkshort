@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            margin: 0;
+            /* margin: auto; */
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            overflow: auto;
+            background: linear-gradient(315deg, rgba(101, 0, 94, 1) 3%, rgba(60, 132, 206, 1) 38%, rgba(48, 238, 226, 1) 68%, rgba(255, 25, 25, 1) 98%);
+            animation: gradient 85s ease infinite;
+            background-size: 400% 400%;
+            background-attachment: fixed;
+        }
+
+        @keyframes gradient {
+            0% {
+                background-position: 0% 0%;
+            }
+
+            50% {
+                background-position: 100% 100%;
+            }
+
+            100% {
+                background-position: 0% 0%;
+            }
+        }
+
+        .container {
+            text-align: center;
+            position: fixed;
+            top: 20%;
+        }
+
+        .input {
+            padding: 20px;
+            /* Increased padding for text input */
+            font-size: 24px;
+            /* Increased font size for better visibility */
+            width: 80%;
+            opacity: 0.6;
+            border: none;
+        }
+
+        .button {
+            padding: 20px 40px;
+            /* Increased padding for a larger button */
+            font-size: 24px;
+            /* Increased font size for better visibility */
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            opacity: 0.8;
+        }
+
+        .button:hover {
+            opacity: 1
+        }
+
+        @media screen and (max-width: 1080px) {
+            .container {
+                text-align: center;
+                position: fixed;
+                top: 20%;
+            }
+
+            #help {
+                font-size: 2rem;
+            }
+
+            .input {
+                padding: transform:;
+                arger padding for text input on mobile */ font-size: 28px;
+                /* Even larger font size for better visibility on mobile */
+                width: 80%;
+                opacity: 0.8;
+                border: none;
+            }
+
+            .button {
+                padding: 30px 60px;
+                /* Larger padding for a much larger button on mobile */
+                font-size: 28px;
+                /* Even larger font size for better visibility on mobile */
+                background-color: #007bff;
+                color: #fff;
+                border: none;
+                cursor: pointer;
+                opacity: 1;
+            }
+
+
+        }
+
+        footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px;
+            opacity: 0.8;
+            text-align: center;
+        }
+
+        footer a {
+            color: #fff;
+            /* text-decoration: none; */
+            margin-left: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <div class="container">
+        <h1>Link Shortener</h1>
+        <p id="help">Enter your long URL:</p>
+        <input type="text" class="input" id="longUrl" placeholder="https://www.example.com">
+        <br>
+        <button class="button" id="shortenButton">Shorten</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script defer>
+        button = $('button')
+        class Shortener {
+            shorten(url) {
+                this.url = url;
+                fetch(`{{app_url}}/shorten`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        url: this.url
+                    })
+                })
+                    .then(resp => resp.json())
+                    .then(data => {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Link Generated',
+                            text: `${data.shortenedUrl}`,
+                            showCancelButton: true,
+                            confirmButtonText: 'Copy',
+                        }).then((result) => {
+                            /* Read more about isConfirmed, isDenied below */
+                            if (result.isConfirmed) {
+                                Swal.fire('Copied!', '', 'success')
+                                navigator.clipboard.writeText(data.shortenedUrl)
+                            }
+                        })
+                    })
+                    .catch((e) => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: `${e}`,
+                            showCancelButton: true,
+                            confirmButtonText: 'Try Again',
+                        }).then((result) => {
+                            /* Read more about isConfirmed, isDenied below */
+                            if (result.isConfirmed) {
+                                this.shorten(this.url)
+                            }
+                        })
+                    })
+            }
+        }
+
+        const shorten = () => {
+            const shortener = new Shortener()
+            const link = $('input')[0].value
+            if (link.match(new RegExp(/^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/i))) {
+                shortener.shorten(link)
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Something went wrong!',
+                    footer: '<b>Please enter a valid URL</b>'
+                })
+            }
+        }
+
+        $("#shortenButton").on("click", shorten)
+    </script>
+
+    <footer>
+        <p>&copy; 2023 Danner Baumgartner</p>
+        <p><a href="https://github.com/dader34" target="_blank">GitHub</a></p>
+    </footer>
+</body>
+
+</html>
