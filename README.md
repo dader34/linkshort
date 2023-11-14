@@ -6,7 +6,7 @@ LinkShort is a simple link shortener that includes both backend and frontend sou
 
 Before you start the server, make sure to run `seed.py` to initialize the database.
 
-## Technologies Used
+## Packages Used
 
 - Flask
 - Flask-SQLAlchemy
