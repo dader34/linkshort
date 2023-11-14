@@ -1,3 +1,4 @@
+```
 # LinkShort
 
 LinkShort is a simple link shortener that includes both backend and frontend source code. The backend is built using Python Flask as the server, and the frontend uses vanilla JavaScript.
@@ -51,6 +52,14 @@ Start the server:
 ```bash
 python main.py
 ```
+
+Visit the demo site at [https://short.danner.repl.co](https://short.danner.repl.co) to see the LinkShort in action.
+
+## Top Links
+
+Check out the top 5 most visited links on the `/top-links` page. This page provides insights into the most popular shortened links based on the number of views.
+
+To access the top links, visit [https://short.danner.repl.co/top-links](https://short.danner.repl.co/top-links).
 
 ## Contributing
 
