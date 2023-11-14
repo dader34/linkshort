@@ -1,4 +1,3 @@
-```
 # LinkShort
 
 LinkShort is a simple link shortener that includes both backend and frontend source code. The backend is built using Python Flask as the server, and the frontend uses vanilla JavaScript.
@@ -68,4 +67,3 @@ If you'd like to contribute to this project, please fork the repository, make yo
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-```
