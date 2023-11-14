@@ -52,7 +52,7 @@ Start the server:
 python main.py
 ```
 
-Visit the demo site at [https://short.danner.repl.co](https://short.danner.repl.co) to see the LinkShort in action.
+Visit the demo site at [https://short.danner.repl.co](https://short.danner.repl.co) to see the link shortener in action.
 
 ## Top Links
 
