@@ -5,7 +5,7 @@ LinkShort is a simple link shortener that includes both backend and frontend sou
 
 ## Prerequisites
 
-Before you start the server, make sure to run `seed.py` to populate the database with initial data.
+Before you start the server, make sure to run `seed.py` to initialize the database.
 
 ## Technologies Used
 
