@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Shortener - Top Links</title>
+    <!-- Add Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+        body {
+            padding: 20px;
+            /* transition: background-color 0.3s, color 0.3s; */
+        }
+
+        .container {
+            transform: translateY(5%);
+            max-width: 800px;
+            margin: 0 auto;
+            background: transparent;
+        }
+
+        .link-container {
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 5px;
+            transition: box-shadow 0.3s;
+        }
+
+        .link-container:hover {
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .link-container h5 {
+            margin-bottom: 10px;
+            color: #007bff;
+        }
+
+        .link-container p {
+            margin-bottom: 0;
+        }
+
+        .view-count {
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        .dark-mode-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            padding: 0;
+            margin: 0;
+            transition: color 0.3s;
+        }
+
+        .dark-mode {
+            background-color: #222;
+            color: #fff;
+        }
+
+        .dark-mode a:hover {
+            color: #b3b3b3;
+        }
+
+        .dark-mode .link-container {
+            background-color: #444;
+            border-color: #555;
+        }
+
+        .dark-mode .link-container:hover {
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+
+        .dark-mode .link-container h5 {
+            color: #bb86fc;
+        }
+
+        .dark-mode .view-count {
+            color: #cf94cc;
+        }
+
+        .dark-mode a {
+            color: white;
+        }
+
+        .goBack {
+            margin-bottom: 20px;
+            background-color: #027bff;
+            position: absolute;
+            color: white;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .dark-mode .goBack {
+            background-color: #555;
+            color: #bb86fc;
+            border: none;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="button-container">
+        <button class="btn btn-primary goBack" type="button" onclick="goBack()">Go Back</button>
+        <button id="darkModeToggle" class="btn dark-mode-toggle" role="switch" aria-checked="false">&#127770;</button>
+    </div>
+
+    <div class="container">
+        <h2 class="mt-4 mb-4">Top Links</h2>
+
+        <div id="links-container" class="list-group">
+            <!-- Links will be added here -->
+        </div>
+
+        <!-- Add Bootstrap JS and Popper.js -->
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+        <script>
+            // Passed in ctx from backend as linkdata, top 5 links
+            const linksData = {{ top_links | tojson | safe }}
+            console.log(linksData)
+
+            // Function to render links on the page
+            function renderLinks() {
+                const linksContainer = document.getElementById('links-container');
+                linksContainer.innerHTML = '';
+
+                linksData.forEach(link => {
+                    const linkItem = document.createElement('a');
+                    linkItem.href = link.short_url;
+                    linkItem.className = 'list-group-item list-group-item-action link-container';
+                    linkItem.innerHTML = `
+                  <div class="d-flex w-100 justify-content-between">
+                      <h5 class="mb-1">${link.long_url}</h5>
+                      <small class="view-count">Views: <span id="viewCount-${link.id}">${link.views}</span></small>
+                  </div>
+                  <p class="mb-1">${link.short_url}</p>
+                  <small class="date-time">Date Created: <span id="dateTime-${link.id}">${link['created_at']}</span></small>
+              `;
+
+                    linksContainer.appendChild(linkItem);
+
+                    //Update views locally on click
+                    linkItem.addEventListener('click', () => {
+                        updateViewCount(link.id);
+                    });
+                });
+            }
+
+            // Function to update views
+            function updateViewCount(linkId) {
+                const viewCountElement = document.getElementById(`viewCount-${linkId}`);
+                const currentViewCount = parseInt(viewCountElement.innerText);
+                viewCountElement.innerText = currentViewCount + 1;
+            }
+
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+
+            // Apply dark mode based on local storage
+            if (isDarkMode) {
+                console.log(isDarkMode)
+                document.body.classList.add('dark-mode');
+                document.getElementById('darkModeToggle').innerHTML = '&#127765;';
+            }
+
+            // Dark mode toggle
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            darkModeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                const newDarkModeState = document.body.classList.contains('dark-mode');
+                localStorage.setItem('darkMode', newDarkModeState);
+                document.body.style.transition = 'background-color 0.3s, color 0.3s';
+                darkModeToggle.innerHTML = newDarkModeState ? '&#127765;' : '&#127761;';
+            });
+
+            // Initial rendering
+            renderLinks();
+
+            // Go back function
+            const goBack = () => {
+                location.assign("/")
+            }
+        </script>
+    </div>
+</body>
+
+</html>
