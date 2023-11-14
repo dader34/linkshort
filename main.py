@@ -115,4 +115,4 @@ def route(code):
 # if __name__ == '__main__':
 #   app.run(host='127.0.0.1', port=5101)
 
-os.system("gunicorn --bind 127.0.0.1:5101 main:app")
+os.system("gunicorn -w 4 --bind 127.0.0.1:5101 main:app")
