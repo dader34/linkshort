@@ -4,9 +4,9 @@ LinkShort is a simple link shortener that includes both backend and frontend sou
 
 ## Prerequisites
 
-Before you start the server, make sure to run `seed.py` to populate the database with initial data.
+Before you start the server, make sure to run `seed.py` to initialize the database.
 
-## Technologies Used
+## Packages Used
 
 - Flask
 - Flask-SQLAlchemy
@@ -52,6 +52,14 @@ Start the server:
 python main.py
 ```
 
+Visit the demo site at [https://short.danner.repl.co](https://short.danner.repl.co) to see the link shortener in action.
+
+## Top Links
+
+Check out the top 5 most visited links on the `/top-links` page. This page provides insights into the most popular shortened links based on the number of views.
+
+To access the top links, visit [https://short.danner.repl.co/top-links](https://short.danner.repl.co/top-links).
+
 ## Contributing
 
 If you'd like to contribute to this project, please fork the repository, make your changes, and submit a pull request.
@@ -59,4 +67,3 @@ If you'd like to contribute to this project, please fork the repository, make yo
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-```
