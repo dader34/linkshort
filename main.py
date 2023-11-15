@@ -68,10 +68,8 @@ def shorten_url():
       if not long_url.startswith(app_url):
         short_url = generate_unique_short_url()
         # Check if the short URL already exists
-        existing_entry = Link.find_short_by_long(long_url)
-        print(long_url)
-        print(existing_entry)
-        if existing_entry:
+        
+        if existing_entry := Link.find_short_by_long(long_url):
   
           # If the short URL exists, don't overwrite the views, just return it
           print('Reusing link')
@@ -82,12 +80,12 @@ def shorten_url():
   
         else:
   
-          # If the short URL doesn't exist, insert a new URL mapping with initial views set to 1
+          # If the short URL doesn't exist, insert a new URL mapping with initial views set to 0
           new_link = Link(long_url=long_url, short_url=short_url)
           db.session.add(new_link)
           db.session.commit()
           print('Creating new link')
-          return jsonify({'shortenedUrl': short_url, 'views': 1})
+          return jsonify({'shortenedUrl': short_url, 'views': 0})
       else:
         return jsonify({'error': 'Invalid URL'})
 
@@ -99,9 +97,8 @@ def shorten_url():
 
 @app.route('/r/<code>')
 def route(code):
-
-  routing_link = Link.redirect_find_url(code)
-  if (routing_link):
+  
+  if routing_link := Link.redirect_find_url(code):
 
     print('Redirecting to original link')
     Link.update_view_count(routing_link.to_dict()['short_url'])
