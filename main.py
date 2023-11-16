@@ -39,21 +39,17 @@ def generate_unique_short_url():
       return f"{app_url}/r/{new_short_url}"
 
 
-class Landing(Resource):
-  def get(self):
-    headers = {'Content-Type': 'text/html'}
-    return make_response(render_template("main.html",app_url=app_url),200,headers)
+@app.route('/')
+def landing():
+  return render_template("main.html",app_url=app_url)
   
-api.add_resource(Landing, '/')
 
-class TopLinks(Resource):
-  def get(self):
-    headers = {'Content-Type': 'text/html'}
-    top_links = Link.get_top_links()
-    return make_response(render_template("top_links.html",
-    top_links=[row.to_dict() for row in top_links]),200,headers)
+@app.route('/top-links')
+def top_links():
+  top_links = Link.get_top_links()
+  return render_template("top_links.html",
+  top_links=[row.to_dict() for row in top_links])
   
-api.add_resource(TopLinks, '/top-links')
 
 class Links(Resource):
   def get(self):
