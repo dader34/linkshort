@@ -1,27 +1,29 @@
 #!/usr/bin/env python3
-from flask import Flask, request, jsonify, render_template
-from flask_cors import CORS
 import os
 from flask_migrate import Migrate
+from flask import Flask, request, jsonify, render_template, make_response
+from flask_cors import CORS
+from flask_restful import Api, Resource
 from models import Link, db, app_url
 import shortuuid
 
 
 app = Flask(__name__)
+
 app.config[
     'SQLALCHEMY_DATABASE_URI'] = 'sqlite:///urls.db' 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 CORS(app,
-     resources={
-         "/shorten": {
-             "origins": [app_url],
-             "methods": ["GET", "POST"]
-         }
-     })
+  resources={
+    "/shorten" : {
+    "origins": [app_url],
+    "methods": ["GET", "POST"]
+  }
+})
 
 db.init_app(app)
-
+api = Api(app)
 migrate = Migrate(app, db)
 
 def generate_unique_short_url():
@@ -35,29 +37,32 @@ def generate_unique_short_url():
     if not existing_link:
       return f"{app_url}/r/{new_short_url}"
 
-@app.route('/')
-def hello_world():
 
-  return render_template("main.html",app_url=app_url)
+class Landing(Resource):
+  def get(self):
+    headers = {'Content-Type': 'text/html'}
+    return make_response(render_template("main.html",app_url=app_url),200,headers)
+  
+api.add_resource(Landing, '/')
 
-@app.route('/top-links')
-def top_links():
+class TopLinks(Resource):
+  def get(self):
+    headers = {'Content-Type': 'text/html'}
+    top_links = Link.get_top_links()
+    return make_response(render_template("top_links.html",
+    top_links=[row.to_dict() for row in top_links]),200,headers)
+  
+api.add_resource(TopLinks, '/top-links')
 
-  top_links = Link.get_top_links()
-  return render_template("top_links.html",
-  top_links=[row.to_dict() for row in top_links])
+class Links(Resource):
+  def get(self):
+    links = Link.all()
+    return jsonify([row.to_dict() for row in links])
+  
+api.add_resource(Links, '/links')
 
-@app.route('/links')
-def links():
-
-  links = Link.all()
-  return jsonify([row.to_dict() for row in links])
-
-@app.route('/shorten', methods=['POST'])
-def shorten_url():
-
-  if request.method == "POST":
-
+class Shorten(Resource):
+  def post(self):
     ip_address = request.headers.get('X-Real-IP', "")
     print(f"Request coming from: {'self' if not ip_address else ip_address}")
 
@@ -94,20 +99,24 @@ def shorten_url():
       print('Request coming from a non-server IP')
       return jsonify(
           {'error': 'You are not allowed to shorten URLs from this IP'})
+    
+api.add_resource(Shorten, '/shorten')
 
-@app.route('/r/<code>')
-def route(code):
-  
-  if routing_link := Link.redirect_find_url(code):
+class Route(Resource):
+  def get(self,code):
+    headers = {'Content-Type': 'text/html'}
+    if routing_link := Link.redirect_find_url(code):
 
-    print('Redirecting to original link')
-    Link.update_view_count(routing_link.to_dict()['short_url'])
-    return render_template('redirect.html', entry=routing_link.to_dict()['long_url'])
+      print('Redirecting to original link')
+      Link.update_view_count(routing_link.to_dict()['short_url'])
+      return make_response(render_template('redirect.html', entry=routing_link.to_dict()['long_url']),200,headers)
 
-  else:
+    else:
 
-    print('Invalid url visited')
-    return render_template('error.html', context=code)
+      print('Invalid url visited')
+      return make_response(render_template('error.html', context=code),400,headers)
+
+api.add_resource(Route, '/r/<string:code>')
 
 # if __name__ == '__main__':
 #   app.run(host='127.0.0.1', port=5101)
