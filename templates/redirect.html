@@ -19,10 +19,10 @@
 </head>
 <body>
 <h1>Link Shortener</h1>
-<p>If you are not redirected, <a href="" onclick="window.location.assign(decodeURIComponent('{{entry}}'))" target="_blank">click here</a>.</p>
+<p>If you are not redirected, <a href="" onclick="window.location.assign({{entry | tojson | safe }})" target="_blank">click here</a>.</p>
 <script>
     // Immediately perform the redirection
-    window.location.assign(decodeURIComponent("{{entry}}"));
+    window.location.assign({{entry | tojson | safe }});
 </script>
 </body>
 </html>
