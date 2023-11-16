@@ -2,7 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
 from sqlalchemy_serializer import SerializerMixin
 
-app_url = "http://127.0.0.1:5101" #Replace with app url and port, you can set this at the bottom of main.py
+app_url = "http://127.0.0.1:5102" #Replace with app url and port, you can set this at the bottom of main.py
 
 metadata = MetaData()
 
@@ -20,10 +20,6 @@ class Link(db.Model, SerializerMixin):
   @classmethod
   def get_top_links(cls):
     return Link.query.order_by(Link.views.desc()).limit(5).all()
-
-  @classmethod
-  def all(cls):
-    return Link.query.all()
 
   @classmethod
   def find_short_by_long(cls,long_url):

@@ -28,13 +28,14 @@ migrate = Migrate(app, db)
 
 def generate_unique_short_url():
   while True:
-    # Generate a short URL using shortuuid or any other method you prefer
+    #Generate random combo with optional length
     new_short_url = shortuuid.ShortUUID().random(length=6)
 
     # Check if the generated short URL already exists in the database
     existing_link = Link.query.filter_by(
         short_url=f"{app_url}/r/{new_short_url}").first()
     if not existing_link:
+      #If link doesnt exist, return a new one
       return f"{app_url}/r/{new_short_url}"
 
 
@@ -56,8 +57,8 @@ api.add_resource(TopLinks, '/top-links')
 
 class Links(Resource):
   def get(self):
-    links = Link.all()
-    return jsonify([row.to_dict() for row in links])
+    links = Link.query.all()
+    return [row.to_dict() for row in links]
   
 api.add_resource(Links, '/links')
 
@@ -78,27 +79,30 @@ class Shorten(Resource):
   
           # If the short URL exists, don't overwrite the views, just return it
           print('Reusing link')
-          return jsonify({
+          return {
               'shortenedUrl': existing_entry.to_dict()['short_url'],
               'views': existing_entry.to_dict()['views']
-          })
+          }
   
         else:
   
           # If the short URL doesn't exist, insert a new URL mapping with initial views set to 0
-          new_link = Link(long_url=long_url, short_url=short_url)
-          db.session.add(new_link)
-          db.session.commit()
-          print('Creating new link')
-          return jsonify({'shortenedUrl': short_url, 'views': 0})
+          try:
+            new_link = Link(long_url=long_url, short_url=short_url)
+            db.session.add(new_link)
+            db.session.commit()
+            print('Creating new link')
+            return jsonify({'shortenedUrl': short_url, 'views': 0})
+          except Exception as e:
+            db.session.rollback()
+            return {"error": e.args}
       else:
-        return jsonify({'error': 'Invalid URL'})
+        return {'error': 'Invalid URL'}
 
     else:
 
       print('Request coming from a non-server IP')
-      return jsonify(
-          {'error': 'You are not allowed to shorten URLs from this IP'})
+      return {'error': 'You are not allowed to shorten URLs from this IP'}
     
 api.add_resource(Shorten, '/shorten')
 
@@ -108,7 +112,10 @@ class Route(Resource):
     if routing_link := Link.redirect_find_url(code):
 
       print('Redirecting to original link')
-      Link.update_view_count(routing_link.to_dict()['short_url'])
+      try:
+        Link.update_view_count(routing_link.to_dict()['short_url'])
+      except Exception as e:
+        return {"error":e.args}
       return make_response(render_template('redirect.html', entry=routing_link.to_dict()['long_url']),200,headers)
 
     else:
@@ -118,7 +125,7 @@ class Route(Resource):
 
 api.add_resource(Route, '/r/<string:code>')
 
-# if __name__ == '__main__':
-#   app.run(host='127.0.0.1', port=5101)
+if __name__ == '__main__':
+  app.run(host='127.0.0.1', port=5102)
 
-os.system("gunicorn -w 4 --bind 127.0.0.1:5101 main:app")
+# os.system("gunicorn -w 4 --bind 127.0.0.1:5101 main:app")
