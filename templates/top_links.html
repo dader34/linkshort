@@ -149,7 +149,7 @@
                     linkItem.className = 'list-group-item list-group-item-action link-container';
                     linkItem.innerHTML = `
                   <div class="d-flex w-100 justify-content-between">
-                      <h5 class="mb-1">${link.long_url}</h5>
+                      <h5 class="mb-1">${link.long_url.length > 40 ? link.long_url.slice(0,40) + "..." : link.long_url}</h5>
                       <small class="view-count">Views: <span id="viewCount-${link.id}">${link.views}</span></small>
                   </div>
                   <p class="mb-1">${link.short_url}</p>

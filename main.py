@@ -56,6 +56,7 @@ class Links(Resource):
     links = Link.query.all()
     return [row.to_dict() for row in links]
   
+  
 api.add_resource(Links, '/links')
 
 class Shorten(Resource):
